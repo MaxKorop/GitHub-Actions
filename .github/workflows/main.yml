@@ -1,4 +1,4 @@
-name: 'Складання автомобіля'
+name: "Car Assembly Line"
 
 on:
   push:
@@ -10,40 +10,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 'Створити папку build'
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create build folder
         run: mkdir build
 
-      - name: 'Перейти в папку build'
-        working-directory: ./build
-        run: cd ./build
+      - name: Change directory to build
+        run: cd build
 
-      - name: 'Створити текстовий файл'
-        run: touch car.txt
+      - name: Create car parts file
+        run: echo "Кузов\nДвигун\nКолеса\nСидіння\nКермо" > car_parts.txt
 
-      - name: 'Записати дані про деталі в файл'
-        run: |
-          echo "Кузов" >> car.txt
-          echo "Двигун" >> car.txt
-          echo "Колеса" >> car.txt
-          echo "Шини" >> car.txt
-          echo "Сидіння" >> car.txt
-
-      - name: 'Визначити шлях до артефактів'
-        run: echo "Шлях до артефактів:"
+      - name: Save build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-artifacts
+          path: build
 
   test:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - name: 'Перейти в папку build'
-        working-directory: ./build
-        run: cd ./build
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: 'Перевірити наявність деталей'
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build-artifacts
+
+      - name: Change directory to build
+        run: cd build
+
+      - name: Test for car parts
         run: |
-          grep -q "Кузов" car.txt
-          grep -q "Двигун" car.txt
-          grep -q "Колеса" car.txt
-          grep -q "Шини" car.txt
-          grep -q "Сидіння" car.txt
+          grep -q "Кузов" car_parts.txt
+          grep -q "Двигун" car_parts.txt
+          grep -q "Колеса" car_parts.txt
+          grep -q "Сидіння" car_parts.txt
+          grep -q "Кермо" car_parts.txt
