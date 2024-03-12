@@ -1,53 +1,52 @@
-name: "Car Assembly Line"
+name: Car Assembly Line
 
-on:
-  push:
-    branches:
-      - master
+on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Set up the repository
+      uses: actions/checkout@v2
 
-      - name: Create build folder
-        run: mkdir build
+    - name: Create build directory
+      run: mkdir build
 
-      - name: Change directory to build
-        run: cd build
+    - name: Create text file and add details
+      run: |
+        cd build
+        touch car.txt
+        echo "Adding body..." > car.txt
+        echo "Adding engine..." >> car.txt
+        echo "Adding wheels..." >> car.txt
 
-      - name: Create car parts file
-        run: echo "Кузов\nДвигун\nКолеса\nСидіння\nКермо" > car_parts.txt
+    - name: Set artifact path
+      run: echo '::set-output name=artifacts::build'
 
-      - name: Save build artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: build-artifacts
-          path: build
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: car-artifact
+        path: ${{ steps.set-path.outputs.artifacts }}
 
   test:
-    needs: build
     runs-on: ubuntu-latest
 
+    needs: build
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Set up the repository
+      uses: actions/checkout@v2
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: build-artifacts
+    - name: Download artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: car-artifact
 
-      - name: Change directory to build
-        run: cd build
-
-      - name: Test for car parts
-        run: |
-          grep -q "Кузов" car_parts.txt
-          grep -q "Двигун" car_parts.txt
-          grep -q "Колеса" car_parts.txt
-          grep -q "Сидіння" car_parts.txt
-          grep -q "Кермо" car_parts.txt
+    - name: Test the build
+      run: |
+        cd build
+        grep "Adding body..." car.txt
+        grep "Adding engine..." car.txt
+        grep "Adding wheels..." car.txt
