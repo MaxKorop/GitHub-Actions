@@ -1,49 +1,49 @@
-name: Build and Test Car Assembly
+name: 'Складання автомобіля'
 
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: 'Створити папку build'
+        run: mkdir build
 
-    - name: Set up Build environment
-      run: |
-        mkdir build
-        cd build
-        echo "Body" > details.txt
-        echo "Engine" >> details.txt
-        echo "Wheels" >> details.txt
-        cd ..
+      - name: 'Перейти в папку build'
+        working-directory: ./build
+        run: cd ./build
 
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: car-artifacts
-        path: build
+      - name: 'Створити текстовий файл'
+        run: touch car.txt
+
+      - name: 'Записати дані про деталі в файл'
+        run: |
+          echo "Кузов" >> car.txt
+          echo "Двигун" >> car.txt
+          echo "Колеса" >> car.txt
+          echo "Шини" >> car.txt
+          echo "Сидіння" >> car.txt
+
+      - name: 'Визначити шлях до артефактів'
+        run: echo "Шлях до артефактів:"
 
   test:
+    needs: build
     runs-on: ubuntu-latest
 
-    needs: build
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: 'Перейти в папку build'
+        working-directory: ./build
+        run: cd ./build
 
-    - name: Download artifacts
-      uses: actions/download-artifact@v2
-      with:
-        name: car-artifacts
-
-    - name: Test Car Assembly
-      run: |
-        grep "Body" build/details.txt
-        grep "Engine" build/details.txt
-        grep "Wheels" build/details.txt
+      - name: 'Перевірити наявність деталей'
+        run: |
+          grep -q "Кузов" car.txt
+          grep -q "Двигун" car.txt
+          grep -q "Колеса" car.txt
+          grep -q "Шини" car.txt
+          grep -q "Сидіння" car.txt
