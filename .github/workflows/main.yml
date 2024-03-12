@@ -1,34 +1,32 @@
-name: Car Assembly Line
+name: Build and Test Car Assembly
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Set up the repository
+    - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Create build directory
-      run: mkdir build
-
-    - name: Create text file and add details
+    - name: Set up Build environment
       run: |
+        mkdir build
         cd build
-        touch car.txt
-        echo "Adding body..." > car.txt
-        echo "Adding engine..." >> car.txt
-        echo "Adding wheels..." >> car.txt
-
-    - name: Set artifact path
-      run: echo '::set-output name=artifacts::build'
+        echo "Body" > details.txt
+        echo "Engine" >> details.txt
+        echo "Wheels" >> details.txt
+        cd ..
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: car-artifact
-        path: ${{ steps.set-path.outputs.artifacts }}
+        name: car-artifacts
+        path: build
 
   test:
     runs-on: ubuntu-latest
@@ -36,17 +34,18 @@ jobs:
     needs: build
 
     steps:
-    - name: Set up the repository
+    - name: Checkout repository
       uses: actions/checkout@v2
 
     - name: Download artifacts
       uses: actions/download-artifact@v2
       with:
-        name: car-artifact
+        name: car-artifacts
 
-    - name: Test the build
+    - name: Test Car Assembly
       run: |
+        ls
         cd build
-        grep "Adding body..." car.txt
-        grep "Adding engine..." car.txt
-        grep "Adding wheels..." car.txt
+        grep "Body" details.txt
+        grep "Engine" details.txt
+        grep "Wheels" details.txt
