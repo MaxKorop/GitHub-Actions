@@ -44,7 +44,7 @@ jobs:
 
     - name: Test Car Assembly
       run: |
-        ls
+        cd ..
         cd build
         grep "Body" details.txt
         grep "Engine" details.txt
